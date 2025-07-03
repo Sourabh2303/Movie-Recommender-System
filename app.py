@@ -5,8 +5,9 @@ import requests
 import os
 
 # 🔽 Step 1: Auto-download similarity.pkl from Google Drive
+# 🔽 Step 1: Auto-download similarity.pkl from Google Drive
 def download_model():
-    file_id = "15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"  # Replace with your real ID
+    file_id = "15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
     # Get confirmation token
@@ -24,8 +25,11 @@ def download_model():
         for chunk in response.iter_content(32768):
             if chunk:
                 f.write(chunk)
+
+# ✅ Add this line to actually call the function BEFORE you load the file
 if not os.path.exists("similarity.pkl"):
     download_model()
+
 
 # 🔽 Step 2: Your existing code
 def fetch_posters(movie_id):
