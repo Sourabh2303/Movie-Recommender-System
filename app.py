@@ -24,7 +24,8 @@ def download_model():
         for chunk in response.iter_content(32768):
             if chunk:
                 f.write(chunk)
-
+if not os.path.exists("similarity.pkl"):
+    download_model()
 
 # 🔽 Step 2: Your existing code
 def fetch_posters(movie_id):
