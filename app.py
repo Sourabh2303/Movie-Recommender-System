@@ -2,14 +2,28 @@ import pickle
 import pandas as pd
 import streamlit as st
 import requests
+import os
+
+# 🔽 Step 1: Auto-download similarity.pkl from Google Drive
+def download_model():
+    url = "https://drive.google.com/uc?export=download&id=15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"  # Replace YOUR_FILE_ID
+    response = requests.get(url)
+    with open("similarity.pkl", "wb") as f:
+        f.write(response.content)
+
+# Only download once
+if not os.path.exists("similarity.pkl"):
+    download_model()
+
+# 🔽 Step 2: Your existing code
 def fetch_posters(movie_id):
     headers = {
         "accept": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzYTliMDM0NWQxMjVhMjY3YTUxOTIzYzM3OGNlMDc2OSIsIm5iZiI6MTc1MTQ3NTU1MC4xNTIsInN1YiI6IjY4NjU2NTVlNDRkMDA4OGI2ZTZhYTE0MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.uZkenIZG8ynpwJG0hSLuLx16c4MS2SO8QhXhp7OGzaQ"
+        "Authorization": "Bearer <your_bearer_token_here>"
     }
-    url="https://api.themoviedb.org/3/movie/{}?api_key=3a9b0345d125a267a51923c378ce0769&language=en-US".format(movie_id)
+    url = "https://api.themoviedb.org/3/movie/{}?api_key=3a9b0345d125a267a51923c378ce0769&language=en-US".format(movie_id)
     try:
-        response = requests.get(url, headers=headers,timeout=10)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
         return "https://image.tmdb.org/t/p/w500" + data['poster_path']
@@ -18,32 +32,30 @@ def fetch_posters(movie_id):
         return "https://via.placeholder.com/500x750?text=No+Image"
 
 def recommend(movie):
-    movie_index=movies[movies['title']==movie].index[0]
-    distances=similarity[movie_index]
-    movies_list=sorted(list(enumerate(distances)),reverse=True,key=lambda x:x[1])[1:6]
+    movie_index = movies[movies['title'] == movie].index[0]
+    distances = similarity[movie_index]
+    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 
-    recommended_movies=[]
-    recommended_poster=[]
+    recommended_movies = []
+    recommended_poster = []
     for i in movies_list:
-        movie_id =movies.iloc[i[0]].movie_id
+        movie_id = movies.iloc[i[0]].movie_id
         recommended_movies.append(movies.iloc[i[0]].title)
         recommended_poster.append(fetch_posters(movie_id))
-    return recommended_movies,recommended_poster
+    return recommended_movies, recommended_poster
 
+# 🔽 Step 3: Load models
+movie_dict = pickle.load(open('movies_dict.pkl', 'rb'))
+movies = pd.DataFrame(movie_dict)
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 
-movie_dict=pickle.load(open('movies_dict.pkl', 'rb'))
-movies=pd.DataFrame(movie_dict)
-similarity=pickle.load(open('similarity.pkl', 'rb'))
-
+# 🔽 Step 4: Streamlit UI
 st.title('Movie Recommender System')
+selected_movie_name = st.selectbox('Select the movie to recommend', movies['title'])
 
-selected_movie_name=st.selectbox(
-    'Select the movie to recommend',
-    movies['title']
-)
 if st.button('Recommend'):
-    name,posters=recommend(selected_movie_name)
-    col1,col2,col3,col4,col5=st.columns(5)
+    name, posters = recommend(selected_movie_name)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(name[0])
         st.image(posters[0])
