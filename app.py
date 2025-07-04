@@ -3,29 +3,16 @@ import pandas as pd
 import streamlit as st
 import requests
 import os
+import gdown
+
 
 # 🔽 Step 1: Auto-download similarity.pkl from Google Drive
 # 🔽 Step 1: Auto-download similarity.pkl from Google Drive
 def download_model():
-    file_id = "15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"
-    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-
-    # Get confirmation token
-    session = requests.Session()
-    response = session.get(download_url, stream=True)
-
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            download_url = f"https://drive.google.com/uc?export=download&confirm={value}&id={file_id}"
-            break
-
-    response = session.get(download_url, stream=True)
-
-    with open("similarity.pkl", "wb") as f:
-        for chunk in response.iter_content(32768):
-            if chunk:
-                f.write(chunk)
-
+    file_id = "15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"  # your actual file ID
+    url = f"https://drive.google.com/uc?id={file_id}"
+    output = "similarity.pkl"
+    gdown.download(url, output, quiet=False)
 # ✅ Add this line to actually call the function BEFORE you load the file
 if not os.path.exists("similarity.pkl"):
     download_model()
