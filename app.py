@@ -6,16 +6,9 @@ import os
 import gdown
 
 
-# 🔽 Step 1: Auto-download similarity.pkl from Google Drive
-# 🔽 Step 1: Auto-download similarity.pkl from Google Drive
-def download_model():
-    file_id = "15vcOfAHe8AHTrqhT41r5kLHoyVBlPPvY"  # your actual file ID
-    url = f"https://drive.google.com/uc?id={file_id}"
-    output = "similarity.pkl"
-    gdown.download(url, output, quiet=False)
-# ✅ Add this line to actually call the function BEFORE you load the file
-if not os.path.exists("similarity.pkl"):
-    download_model()
+
+import bz2
+
 
 
 # 🔽 Step 2: Your existing code
@@ -50,7 +43,8 @@ def recommend(movie):
 # 🔽 Step 3: Load models
 movie_dict = pickle.load(open('movies_dict.pkl', 'rb'))
 movies = pd.DataFrame(movie_dict)
-similarity = pickle.load(open('similarity.pkl', 'rb'))
+with bz2.BZ2File("similarity.pbz2", "rb") as f:
+    similarity = pickle.load(f)
 
 # 🔽 Step 4: Streamlit UI
 st.title('Movie Recommender System')
