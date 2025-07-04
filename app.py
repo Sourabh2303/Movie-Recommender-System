@@ -22,7 +22,7 @@ if not os.path.exists("similarity.pkl"):
 def fetch_posters(movie_id):
     headers = {
         "accept": "application/json",
-        "Authorization": "Bearer <your_bearer_token_here>"
+
     }
     url = "https://api.themoviedb.org/3/movie/{}?api_key=3a9b0345d125a267a51923c378ce0769&language=en-US".format(movie_id)
     try:
