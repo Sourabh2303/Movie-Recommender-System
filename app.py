@@ -12,6 +12,7 @@ import bz2
 
 
 # 🔽 Step 2: Your existing code
+@st.cache_data
 def fetch_posters(movie_id):
     headers = {
         "accept": "application/json",
@@ -43,8 +44,12 @@ def recommend(movie):
 # 🔽 Step 3: Load models
 movie_dict = pickle.load(open('movies_dict.pkl', 'rb'))
 movies = pd.DataFrame(movie_dict)
-with bz2.BZ2File("similarity.pbz2", "rb") as f:
-    similarity = pickle.load(f)
+
+@st.cache_resource
+def load_similarity():
+    with bz2.BZ2File("similarity.pbz2", "rb") as f:
+        return pickle.load(f)
+similarity=load_similarity()
 
 # 🔽 Step 4: Streamlit UI
 st.title('Movie Recommender System')
